@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { User, Mail, Phone, Building2, Save, X } from 'lucide-react';
 
 export default function ContactForm({ initialData, onSubmit, onCancel }) {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
         phone: '',
-        company: ''
+        company: '',
     });
 
     useEffect(() => {
@@ -14,7 +15,7 @@ export default function ContactForm({ initialData, onSubmit, onCancel }) {
                 name: initialData.name || '',
                 email: initialData.email || '',
                 phone: initialData.phone || '',
-                company: initialData.company || ''
+                company: initialData.company || '',
             });
         }
     }, [initialData]);
@@ -25,49 +26,86 @@ export default function ContactForm({ initialData, onSubmit, onCancel }) {
     };
 
     return (
-        <div className="fade-in" style={{ padding: '3rem', maxWidth: '600px', margin: '0 auto' }}>
-            <h2 style={{ marginBottom: '2rem' }}>{initialData ? 'Edit Contact' : 'New Contact'}</h2>
-            <form onSubmit={handleSubmit} className="glass" style={{ padding: '2rem', borderRadius: '1rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                <div>
-                    <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Name *</label>
-                    <input 
-                        className="input-field" 
-                        required 
-                        value={formData.name} 
-                        onChange={e => setFormData({...formData, name: e.target.value})} 
-                    />
-                </div>
-                <div>
-                    <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Email</label>
-                    <input 
-                        type="email" 
-                        className="input-field" 
-                        value={formData.email} 
-                        onChange={e => setFormData({...formData, email: e.target.value})} 
-                    />
-                </div>
-                <div>
-                    <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Phone</label>
-                    <input 
-                        className="input-field" 
-                        value={formData.phone} 
-                        onChange={e => setFormData({...formData, phone: e.target.value})} 
-                    />
-                </div>
-                <div>
-                    <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Company</label>
-                    <input 
-                        className="input-field" 
-                        value={formData.company} 
-                        onChange={e => setFormData({...formData, company: e.target.value})} 
-                    />
-                </div>
-                
-                <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-                    <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>Save</button>
-                    <button type="button" onClick={onCancel} className="btn" style={{ flex: 1, backgroundColor: 'transparent', border: '1px solid var(--border)' }}>Cancel</button>
-                </div>
-            </form>
+        <div className="fade-in" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <div className="form-header">
+                <h1 className="form-title">
+                    {initialData ? 'Edit Contact' : 'New Contact'}
+                </h1>
+            </div>
+
+            <div className="form-body">
+                <form onSubmit={handleSubmit} className="form-card">
+                    <div className="form-group">
+                        <label className="form-label" htmlFor="contact-name">
+                            <User size={14} />
+                            Full Name <span className="form-required">*</span>
+                        </label>
+                        <input
+                            id="contact-name"
+                            className="input-field"
+                            required
+                            placeholder="e.g. John Smith"
+                            value={formData.name}
+                            onChange={e => setFormData({ ...formData, name: e.target.value })}
+                        />
+                    </div>
+
+                    <div className="form-row">
+                        <div className="form-group">
+                            <label className="form-label" htmlFor="contact-email">
+                                <Mail size={14} />
+                                Email
+                            </label>
+                            <input
+                                id="contact-email"
+                                type="email"
+                                className="input-field"
+                                placeholder="john@example.com"
+                                value={formData.email}
+                                onChange={e => setFormData({ ...formData, email: e.target.value })}
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label" htmlFor="contact-phone">
+                                <Phone size={14} />
+                                Phone
+                            </label>
+                            <input
+                                id="contact-phone"
+                                className="input-field"
+                                placeholder="+1 (555) 123-4567"
+                                value={formData.phone}
+                                onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="form-group">
+                        <label className="form-label" htmlFor="contact-company">
+                            <Building2 size={14} />
+                            Company
+                        </label>
+                        <input
+                            id="contact-company"
+                            className="input-field"
+                            placeholder="e.g. Acme Corp"
+                            value={formData.company}
+                            onChange={e => setFormData({ ...formData, company: e.target.value })}
+                        />
+                    </div>
+
+                    <div className="form-actions">
+                        <button type="submit" className="btn btn-primary" style={{ flex: 1 }} id="save-contact-btn">
+                            <Save size={15} />
+                            {initialData ? 'Save Changes' : 'Create Contact'}
+                        </button>
+                        <button type="button" onClick={onCancel} className="btn" style={{ flex: 1 }} id="cancel-btn">
+                            <X size={15} />
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     );
 }

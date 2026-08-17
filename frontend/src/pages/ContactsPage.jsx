@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useCallback } from 'react';
+import { useState, useEffect, useContext, useCallback } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import client from '../api/client';
 import useDebounce from '../hooks/useDebounce';
@@ -6,7 +6,8 @@ import ContactList from '../components/ContactList';
 import ContactDetail from '../components/ContactDetail';
 import ContactForm from '../components/ContactForm';
 import SearchBar from '../components/SearchBar';
-import { LogOut, Plus } from 'lucide-react';
+import Toast from '../components/Toast';
+import { Plus, LogOut, Menu, X } from 'lucide-react';
 
 export default function ContactsPage() {
     const { logout } = useContext(AuthContext);
@@ -15,8 +16,14 @@ export default function ContactsPage() {
     const [selectedContact, setSelectedContact] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [toast, setToast] = useState(null);
 
     const debouncedSearch = useDebounce(search, 300);
+
+    const showToast = (message, type = 'success') => {
+        setToast({ message, type, id: Date.now() });
+    };
 
     const fetchContacts = useCallback(async (query = '') => {
         setLoading(true);
@@ -41,11 +48,13 @@ export default function ContactsPage() {
     const handleSelect = (contact) => {
         setSelectedContact(contact);
         setIsEditing(false);
+        setSidebarOpen(false);
     };
 
     const handleCreateNew = () => {
         setSelectedContact(null);
         setIsEditing(true);
+        setSidebarOpen(false);
     };
 
     const handleEdit = () => {
@@ -57,8 +66,10 @@ export default function ContactsPage() {
             await client.delete(`/contacts/${id}/`);
             setSelectedContact(null);
             fetchContacts(debouncedSearch);
+            showToast('Contact deleted successfully');
         } catch (err) {
             console.error("Error deleting contact:", err);
+            showToast('Failed to delete contact', 'error');
         }
     };
 
@@ -67,15 +78,17 @@ export default function ContactsPage() {
             if (selectedContact) {
                 const res = await client.patch(`/contacts/${selectedContact.id}/`, formData);
                 setSelectedContact(res.data);
+                showToast('Contact updated successfully');
             } else {
                 const res = await client.post('/contacts/', formData);
                 setSelectedContact(res.data);
+                showToast('Contact created successfully');
             }
             setIsEditing(false);
             fetchContacts(debouncedSearch);
         } catch (err) {
             console.error("Error saving contact:", err);
-            alert("Error saving contact. Please check your inputs.");
+            showToast('Failed to save contact. Please check your inputs.', 'error');
         }
     };
 
@@ -84,45 +97,95 @@ export default function ContactsPage() {
     };
 
     return (
-        <div className="app-container">
-            <div className="sidebar">
-                <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                        <h2 style={{ fontSize: '1.25rem', fontWeight: 600 }}>My Contacts</h2>
-                        <button onClick={logout} className="btn" style={{ padding: '0.5rem', backgroundColor: 'transparent' }} title="Log out">
-                            <LogOut size={20} color="var(--text-muted)" />
+        <>
+            <div className="mobile-header">
+                <button
+                    className="btn btn-icon"
+                    onClick={() => setSidebarOpen(true)}
+                    aria-label="Open menu"
+                    id="mobile-menu-btn"
+                >
+                    <Menu size={20} />
+                </button>
+                <span className="mobile-header-title">Contacts</span>
+                <div style={{ width: 36 }} />
+            </div>
+
+            {sidebarOpen && (
+                <div
+                    className="mobile-overlay"
+                    onClick={() => setSidebarOpen(false)}
+                />
+            )}
+
+            <div className="app-container">
+                <div className={`sidebar${sidebarOpen ? ' open' : ''}`}>
+                    <div className="sidebar-header">
+                        <div className="sidebar-top-row">
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                <h2 className="sidebar-title">Contacts</h2>
+                                {!loading && (
+                                    <span className="sidebar-count">{contacts.length}</span>
+                                )}
+                            </div>
+                            <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
+                                <button
+                                    onClick={logout}
+                                    className="btn btn-ghost btn-sm"
+                                    title="Sign out"
+                                    id="logout-btn"
+                                >
+                                    <LogOut size={16} />
+                                </button>
+                                <button
+                                    onClick={() => setSidebarOpen(false)}
+                                    className="btn btn-icon sidebar-close"
+                                    aria-label="Close menu"
+                                >
+                                    <X size={18} />
+                                </button>
+                            </div>
+                        </div>
+                        <SearchBar value={search} onChange={setSearch} />
+                        <button
+                            onClick={handleCreateNew}
+                            className="btn btn-primary"
+                            style={{ width: '100%' }}
+                            id="create-contact-btn"
+                        >
+                            <Plus size={16} />
+                            Add Contact
                         </button>
                     </div>
-                    <SearchBar value={search} onChange={setSearch} />
-                    <button onClick={handleCreateNew} className="btn btn-primary" style={{ width: '100%', marginTop: '0.5rem' }}>
-                        <Plus size={18} /> New Contact
-                    </button>
+                    <div className="sidebar-list">
+                        <ContactList
+                            contacts={contacts}
+                            selectedId={selectedContact?.id}
+                            onSelect={handleSelect}
+                            loading={loading}
+                            emptySearch={search.length > 0}
+                        />
+                    </div>
                 </div>
-                <div style={{ flex: 1, overflowY: 'auto', padding: '1rem' }}>
-                    <ContactList 
-                        contacts={contacts} 
-                        selectedId={selectedContact?.id} 
-                        onSelect={handleSelect} 
-                        loading={loading}
-                        emptySearch={search.length > 0}
-                    />
+
+                <div className="main-content">
+                    {isEditing ? (
+                        <ContactForm
+                            initialData={selectedContact}
+                            onSubmit={handleSubmit}
+                            onCancel={handleCancel}
+                        />
+                    ) : (
+                        <ContactDetail
+                            contact={selectedContact}
+                            onEdit={handleEdit}
+                            onDelete={handleDelete}
+                        />
+                    )}
                 </div>
             </div>
-            <div className="main-content">
-                {isEditing ? (
-                    <ContactForm 
-                        initialData={selectedContact} 
-                        onSubmit={handleSubmit} 
-                        onCancel={handleCancel} 
-                    />
-                ) : (
-                    <ContactDetail 
-                        contact={selectedContact} 
-                        onEdit={handleEdit} 
-                        onDelete={handleDelete} 
-                    />
-                )}
-            </div>
-        </div>
+
+            <Toast toast={toast} onClose={() => setToast(null)} />
+        </>
     );
 }

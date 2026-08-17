@@ -1,6 +1,7 @@
-import React, { useState, useContext } from 'react';
+import { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
+import { BookUser, AlertCircle, ArrowRight } from 'lucide-react';
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');
@@ -22,30 +23,54 @@ export default function LoginPage() {
 
     return (
         <div className="auth-container">
-            <div className="auth-card glass fade-in">
-                <h2 style={{ marginBottom: '1.5rem', textAlign: 'center' }}>Welcome Back</h2>
-                {error && <div style={{ color: 'var(--danger)', marginBottom: '1rem', textAlign: 'center' }}>{error}</div>}
-                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <input
-                        type="email"
-                        placeholder="Email Address"
-                        className="input-field"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                    />
-                    <input
-                        type="password"
-                        placeholder="Password"
-                        className="input-field"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    />
-                    <button type="submit" className="btn btn-primary" style={{ marginTop: '0.5rem' }}>Log In</button>
+            <div className="auth-card fade-in">
+                <div className="auth-brand">
+                    <div className="auth-brand-icon">
+                        <BookUser size={20} />
+                    </div>
+                </div>
+                <h2 className="auth-title">Welcome back</h2>
+                <p className="auth-subtitle">Sign in to your contact book</p>
+
+                <form onSubmit={handleSubmit} className="auth-form" id="login-form">
+                    {error && (
+                        <div className="auth-error">
+                            <AlertCircle size={16} />
+                            {error}
+                        </div>
+                    )}
+                    <div className="auth-form-group">
+                        <label className="form-label" htmlFor="login-email">Email</label>
+                        <input
+                            id="login-email"
+                            type="email"
+                            placeholder="you@example.com"
+                            className="input-field"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className="auth-form-group">
+                        <label className="form-label" htmlFor="login-password">Password</label>
+                        <input
+                            id="login-password"
+                            type="password"
+                            placeholder="••••••••"
+                            className="input-field"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <button type="submit" className="btn btn-primary" style={{ width: '100%' }} id="login-submit-btn">
+                        Sign In
+                        <ArrowRight size={16} />
+                    </button>
                 </form>
-                <div style={{ marginTop: '1.5rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-                    Don't have an account? <Link to="/register" style={{ color: 'var(--primary)', textDecoration: 'none' }}>Register</Link>
+
+                <div className="auth-footer">
+                    Don&apos;t have an account? <Link to="/register">Create one</Link>
                 </div>
             </div>
         </div>

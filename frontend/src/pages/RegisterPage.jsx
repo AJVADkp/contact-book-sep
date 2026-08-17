@@ -1,6 +1,7 @@
-import React, { useState, useContext } from 'react';
+import { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
+import { BookUser, AlertCircle, ArrowRight } from 'lucide-react';
 
 export default function RegisterPage() {
     const [email, setEmail] = useState('');
@@ -26,30 +27,54 @@ export default function RegisterPage() {
 
     return (
         <div className="auth-container">
-            <div className="auth-card glass fade-in">
-                <h2 style={{ marginBottom: '1.5rem', textAlign: 'center' }}>Create Account</h2>
-                {error && <div style={{ color: 'var(--danger)', marginBottom: '1rem', textAlign: 'center' }}>{error}</div>}
-                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <input
-                        type="email"
-                        placeholder="Email Address"
-                        className="input-field"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                    />
-                    <input
-                        type="password"
-                        placeholder="Password"
-                        className="input-field"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    />
-                    <button type="submit" className="btn btn-primary" style={{ marginTop: '0.5rem' }}>Register</button>
+            <div className="auth-card fade-in">
+                <div className="auth-brand">
+                    <div className="auth-brand-icon">
+                        <BookUser size={20} />
+                    </div>
+                </div>
+                <h2 className="auth-title">Create an account</h2>
+                <p className="auth-subtitle">Start organizing your contacts</p>
+
+                <form onSubmit={handleSubmit} className="auth-form" id="register-form">
+                    {error && (
+                        <div className="auth-error">
+                            <AlertCircle size={16} />
+                            {error}
+                        </div>
+                    )}
+                    <div className="auth-form-group">
+                        <label className="form-label" htmlFor="register-email">Email</label>
+                        <input
+                            id="register-email"
+                            type="email"
+                            placeholder="you@example.com"
+                            className="input-field"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className="auth-form-group">
+                        <label className="form-label" htmlFor="register-password">Password</label>
+                        <input
+                            id="register-password"
+                            type="password"
+                            placeholder="••••••••"
+                            className="input-field"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <button type="submit" className="btn btn-primary" style={{ width: '100%' }} id="register-submit-btn">
+                        Create Account
+                        <ArrowRight size={16} />
+                    </button>
                 </form>
-                <div style={{ marginTop: '1.5rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-                    Already have an account? <Link to="/login" style={{ color: 'var(--primary)', textDecoration: 'none' }}>Log In</Link>
+
+                <div className="auth-footer">
+                    Already have an account? <Link to="/login">Sign in</Link>
                 </div>
             </div>
         </div>

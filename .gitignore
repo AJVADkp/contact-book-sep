@@ -1,0 +1,5 @@
+
+Backend/venv/
+Backend/__pycache__/
+frontend/test-results/
+Backend/db.sqlite3
